@@ -92,7 +92,8 @@ private sealed class LoadingState {
 
 @Composable
 internal fun ExampleScreen(
-    configuration: IdentityVerificationSheet.Configuration, viewModel: IdentityExampleViewModel
+    configuration: IdentityVerificationSheet.Configuration,
+    viewModel: IdentityExampleViewModel
 ) {
     val scaffoldState = rememberScaffoldState()
     val scrollState = rememberScrollState()
@@ -130,7 +131,8 @@ internal fun ExampleScreen(
             IntegrationTypeUI(submissionState, onSubmissionStateChanged)
             Divider()
             TypeSelectUI(
-                submissionState.verificationType, submissionState.integrationType
+                submissionState.verificationType,
+                submissionState.integrationType
             ) { newVerificationType ->
                 onSubmissionStateChanged(
                     submissionState.copy(
@@ -152,13 +154,19 @@ internal fun ExampleScreen(
                         scrollState = scrollState
                     )
                     VerificationType.ID_NUMBER -> IdNumberUI(
-                        scrollState, submissionState, onSubmissionStateChanged
+                        scrollState,
+                        submissionState,
+                        onSubmissionStateChanged
                     )
                     VerificationType.ADDRESS -> AddressUI(
-                        scrollState, submissionState, onSubmissionStateChanged
+                        scrollState,
+                        submissionState,
+                        onSubmissionStateChanged
                     )
                     VerificationType.PHONE -> PhoneUI(
-                        scrollState, submissionState, onSubmissionStateChanged
+                        scrollState,
+                        submissionState,
+                        onSubmissionStateChanged
                     )
                 }
             }
@@ -184,14 +192,16 @@ private fun IntegrationTypeUI(
         RadioButton(selected = identitySubmissionState.integrationType == NATIVE, onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = NATIVE
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = NATIVE
                 )
             )
         })
         StyledClickableText(text = AnnotatedString(stringResource(R.string.use_native)), onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = NATIVE
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = NATIVE
                 )
             )
         })
@@ -200,14 +210,16 @@ private fun IntegrationTypeUI(
         RadioButton(selected = identitySubmissionState.integrationType == WEB, onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = WEB
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = WEB
                 )
             )
         })
         StyledClickableText(text = AnnotatedString(stringResource(R.string.use_web)), onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = WEB
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = WEB
                 )
             )
         })
@@ -216,14 +228,16 @@ private fun IntegrationTypeUI(
         RadioButton(selected = identitySubmissionState.integrationType == LINK, onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = LINK
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = LINK
                 )
             )
         })
         StyledClickableText(text = AnnotatedString(stringResource(R.string.get_link)), onClick = {
             onSubmissionStateChangedListener(
                 identitySubmissionState.copy(
-                    verificationType = VerificationType.DOCUMENT, integrationType = LINK
+                    verificationType = VerificationType.DOCUMENT,
+                    integrationType = LINK
                 )
             )
         })
@@ -247,11 +261,13 @@ private fun TypeSelectUI(
             .fillMaxWidth()
             .wrapContentSize(Alignment.TopStart)
     ) {
-        OutlinedTextField(value = verificationType.name,
+        OutlinedTextField(
+            value = verificationType.name,
             enabled = false,
             trailingIcon = {
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown, contentDescription = null
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null
                 )
             },
             modifier = Modifier
@@ -261,7 +277,8 @@ private fun TypeSelectUI(
             placeholder = {
                 Text(text = verificationType.name)
             },
-            onValueChange = {})
+            onValueChange = {}
+        )
 
         DropdownMenu(
             expanded = expanded,
@@ -385,7 +402,8 @@ private fun LoadingButton(
                     }
                 }
             }
-        }, enabled = enabled
+        },
+        enabled = enabled
     ) {
         Text(text = stringResource(id = R.string.start_verification))
     }
@@ -420,14 +438,16 @@ private fun SubmitView(
             IdentityVerificationSheet.VerificationFlowResult.Canceled -> {
                 onLoadingStateChanged(
                     LoadingState.Result(
-                        highlight = vsId, resultString = "Verification result: Canceled"
+                        highlight = vsId,
+                        resultString = "Verification result: Canceled"
                     )
                 )
             }
             IdentityVerificationSheet.VerificationFlowResult.Completed -> {
                 onLoadingStateChanged(
                     LoadingState.Result(
-                        highlight = vsId, resultString = "Verification result: Completed"
+                        highlight = vsId,
+                        resultString = "Verification result: Completed"
                     )
                 )
             }
