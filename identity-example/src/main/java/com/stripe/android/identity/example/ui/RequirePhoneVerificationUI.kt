@@ -42,7 +42,6 @@ internal fun RequirePhoneVerificationUI(
 
     val currentPhoneNumber by phoneController.fieldValue.collectAsState(initial = "")
 
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
