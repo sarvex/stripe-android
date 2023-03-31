@@ -158,11 +158,7 @@ internal fun ExampleScreen(
                         submissionState,
                         onSubmissionStateChanged
                     )
-                    VerificationType.ADDRESS -> AddressUI(
-                        scrollState,
-                        submissionState,
-                        onSubmissionStateChanged
-                    )
+                    VerificationType.ADDRESS -> AddressUI()
                     VerificationType.PHONE -> PhoneUI(
                         scrollState,
                         submissionState,
@@ -473,8 +469,8 @@ private fun SubmitView(
             }
             LINK -> {
                 (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(
-                        ClipData.newPlainText("verification link", url)
-                    )
+                    ClipData.newPlainText("verification link", url)
+                )
                 coroutineScope.launch {
                     scaffoldState.snackbarHostState.showSnackbar("Link copied to clipboard!")
                 }

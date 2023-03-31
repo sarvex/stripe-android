@@ -50,6 +50,7 @@ android {
 
 dependencies {
     implementation project(':identity')
+    implementation project(':stripe-ui-core')
 
     implementation "androidx.core:core-ktx:$androidxCoreVersion"
     implementation "androidx.appcompat:appcompat:$androidxAppcompatVersion"

@@ -4,12 +4,10 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Checkbox
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.stripe.android.identity.example.R
+import com.stripe.android.uicore.elements.IdentifierSpec
+import com.stripe.android.uicore.elements.PhoneNumberController
+import com.stripe.android.uicore.elements.PhoneNumberElement
+import com.stripe.android.uicore.elements.SectionElement
+import com.stripe.android.uicore.elements.SectionElementUI
 
 @Composable
 internal fun RequirePhoneVerificationUI(
@@ -32,71 +33,67 @@ internal fun RequirePhoneVerificationUI(
     var requirePhoneVerification by remember {
         mutableStateOf(false)
     }
-    var providedPhoneNumber: String? by remember {
-        mutableStateOf(null)
+
+    val phoneController = remember {
+        PhoneNumberController(
+            overrideCountryCodes = setOf("US")
+        )
     }
+
+    val currentPhoneNumber by phoneController.fieldValue.collectAsState(initial = "")
+
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(checked = requirePhoneVerification, onCheckedChange = {
             requirePhoneVerification = it
-            onSubmissionStateChanged(
-                submissionState.copy(
-                    requirePhoneVerification = requirePhoneVerification
-                )
-            )
-            if (!requirePhoneVerification) {
-                providedPhoneNumber = null
-                onSubmissionStateChanged(
-                    submissionState.copy(
-                        providedPhoneNumber = null
-                    )
-                )
-            }
         })
         StyledClickableText(
             text = AnnotatedString(stringResource(id = R.string.require_phone_number)),
             onClick = {
                 requirePhoneVerification = !requirePhoneVerification
-                onSubmissionStateChanged(
-                    submissionState.copy(
-                        requirePhoneVerification = requirePhoneVerification
-                    )
-                )
-                if (!requirePhoneVerification) {
-                    providedPhoneNumber = null
-                    onSubmissionStateChanged(
-                        submissionState.copy(
-                            providedPhoneNumber = null
-                        )
-                    )
-                }
             }
         )
     }
     if (requirePhoneVerification) {
-        OutlinedTextField(
+        Row(
             modifier = Modifier
-                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
-                .fillMaxWidth(),
-            value = providedPhoneNumber.orEmpty(),
-            onValueChange = {
-                providedPhoneNumber = it
-                onSubmissionStateChanged(
-                    submissionState.copy(
-                        providedPhoneNumber = it
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
+            SectionElementUI(
+                enabled = true,
+                element = SectionElement.wrap(
+                    PhoneNumberElement(
+                        identifier = IdentifierSpec.Phone,
+                        controller = phoneController
                     )
-                )
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Done
-            ),
-            label = { Text(stringResource(id = R.string.provided_phone_number)) }
-        )
+                ),
+                hiddenIdentifiers = emptySet(),
+                lastTextFieldIdentifier = IdentifierSpec.Phone
+            )
+        }
     }
     LaunchedEffect(requirePhoneVerification) {
         scrollState.scrollTo(scrollState.maxValue)
+    }
+    LaunchedEffect(currentPhoneNumber, requirePhoneVerification) {
+        if (requirePhoneVerification) {
+            onSubmissionStateChanged(
+                submissionState.copy(
+                    requirePhoneVerification = true,
+                    providedPhoneNumber = phoneController.getE164PhoneNumber(currentPhoneNumber)
+                )
+            )
+        } else {
+            onSubmissionStateChanged(
+                submissionState.copy(
+                    requirePhoneVerification = false,
+                    providedPhoneNumber = null
+                )
+            )
+        }
     }
 }
