@@ -2,6 +2,10 @@
 
 ## XX.XX.XX - 2023-XX-XX
 
+### PaymentSheet
+[ADDED][6583](https://github.com/stripe/stripe-android/pull/6583) Added dedicated remember methods for `PaymentSheet` and `PaymentSheet.FlowController` for easier integration in Compose.
+[DEPRECATED][6583](https://github.com/stripe/stripe-android/pull/6583) Deprecated `PaymentSheetContract` and `PaymentSheetContract.Args`. Use the `PaymentSheet` constructor or new `rememberPaymentSheet` method instead.
+
 ## 20.23.1 - 2023-04-17
 
 ### PaymentSheet

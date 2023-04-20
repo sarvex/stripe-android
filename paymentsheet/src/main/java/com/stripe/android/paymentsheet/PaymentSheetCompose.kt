@@ -1,0 +1,106 @@
+package com.stripe.android.paymentsheet
+
+import android.app.Application
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import com.stripe.android.CreateIntentCallback
+import com.stripe.android.CreateIntentCallbackForServerSideConfirmation
+import com.stripe.android.ExperimentalPaymentSheetDecouplingApi
+import com.stripe.android.IntentConfirmationInterceptor
+
+/**
+ * Creates a [PaymentSheet] that is remembered across compositions.
+ *
+ * This *must* be called unconditionally, as part of the initialization path.
+ *
+ * @param paymentResultCallback Called with the result of the payment after [PaymentSheet] is dismissed.
+ */
+@Composable
+fun rememberPaymentSheet(
+    paymentResultCallback: PaymentSheetResultCallback,
+): PaymentSheet {
+    val onResult by rememberUpdatedState(newValue = paymentResultCallback::onPaymentSheetResult)
+
+    val activityResultLauncher = rememberLauncherForActivityResult(
+        contract = PaymentSheetContractV2(),
+        onResult = onResult,
+    )
+
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    return remember {
+        val launcher = DefaultPaymentSheetLauncher(
+            activityResultLauncher = activityResultLauncher,
+            application = context.applicationContext as Application,
+            lifecycleOwner = lifecycleOwner,
+        )
+        PaymentSheet(launcher)
+    }
+}
+
+/**
+ * Creates a [PaymentSheet] that is remembered across compositions. Use this method when you intend
+ * to create the [com.stripe.android.model.PaymentIntent] or [com.stripe.android.model.SetupIntent]
+ * on your server.
+ *
+ * This *must* be called unconditionally, as part of the initialization path.
+ *
+ * @param createIntentCallback Called when the customer confirms the payment or setup.
+ * @param paymentResultCallback Called with the result of the payment after [PaymentSheet] is dismissed.
+ */
+@ExperimentalPaymentSheetDecouplingApi
+@Composable
+fun rememberPaymentSheet(
+    createIntentCallback: CreateIntentCallback,
+    paymentResultCallback: PaymentSheetResultCallback,
+): PaymentSheet {
+    UpdateIntentConfirmationInterceptor(createIntentCallback)
+    return rememberPaymentSheet(paymentResultCallback)
+}
+
+/**
+ * Creates a [PaymentSheet] that is remembered across compositions. Use this method when you intend
+ * to create and confirm the [com.stripe.android.model.PaymentIntent] or
+ * [com.stripe.android.model.SetupIntent] on your server.
+ *
+ * This *must* be called unconditionally, as part of the initialization path.
+ *
+ * @param createIntentCallback Called when the customer confirms the payment or setup.
+ * @param paymentResultCallback Called with the result of the payment after [PaymentSheet] is dismissed.
+ */
+@ExperimentalPaymentSheetDecouplingApi
+@Composable
+fun rememberPaymentSheet(
+    createIntentCallback: CreateIntentCallbackForServerSideConfirmation,
+    paymentResultCallback: PaymentSheetResultCallback,
+): PaymentSheet {
+    UpdateIntentConfirmationInterceptor(createIntentCallback)
+    return rememberPaymentSheet(paymentResultCallback)
+}
+
+@OptIn(ExperimentalPaymentSheetDecouplingApi::class)
+@Composable
+private fun UpdateIntentConfirmationInterceptor(
+    createIntentCallback: CreateIntentCallback,
+) {
+    LaunchedEffect(createIntentCallback) {
+        IntentConfirmationInterceptor.createIntentCallback = createIntentCallback
+    }
+}
+
+@OptIn(ExperimentalPaymentSheetDecouplingApi::class)
+@Composable
+private fun UpdateIntentConfirmationInterceptor(
+    createIntentCallbackForServerSideConfirmation: CreateIntentCallbackForServerSideConfirmation,
+) {
+    LaunchedEffect(createIntentCallbackForServerSideConfirmation) {
+        IntentConfirmationInterceptor.createIntentCallback = createIntentCallbackForServerSideConfirmation
+    }
+}
