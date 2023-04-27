@@ -30,9 +30,18 @@ class DeferredPaymentIntentJsonParser(
         val countryCode = optString(json, FIELD_COUNTRY_CODE)
 
         val captureMethod = when (params.captureMethod) {
-            DeferredIntentParams.CaptureMethod.Manual -> PaymentIntent.CaptureMethod.Manual
-            DeferredIntentParams.CaptureMethod.Automatic -> PaymentIntent.CaptureMethod.Automatic
-            null -> PaymentIntent.CaptureMethod.Automatic
+            DeferredIntentParams.CaptureMethod.Automatic -> {
+                PaymentIntent.CaptureMethod.Automatic
+            }
+            DeferredIntentParams.CaptureMethod.AutomaticAsync -> {
+                PaymentIntent.CaptureMethod.AutomaticAsync
+            }
+            DeferredIntentParams.CaptureMethod.Manual -> {
+                PaymentIntent.CaptureMethod.Manual
+            }
+            null -> {
+                PaymentIntent.CaptureMethod.Automatic
+            }
         }
 
         return PaymentIntent(

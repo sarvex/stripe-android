@@ -23,7 +23,7 @@ data class DeferredIntentParams(
         @Parcelize
         data class Payment(
             val amount: Long,
-            val currency: String
+            val currency: String,
         ) : Mode {
             override val code: String get() = "payment"
         }
@@ -31,7 +31,7 @@ data class DeferredIntentParams(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Parcelize
         data class Setup(
-            val currency: String?
+            val currency: String?,
         ) : Mode {
             override val code: String get() = "setup"
         }
@@ -39,8 +39,9 @@ data class DeferredIntentParams(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     enum class CaptureMethod(val code: String) {
+        Automatic("automatic"),
+        AutomaticAsync("automatic_async"),
         Manual("manual"),
-        Automatic("automatic")
     }
 
     fun toQueryParams(): Map<String, Any?> {
