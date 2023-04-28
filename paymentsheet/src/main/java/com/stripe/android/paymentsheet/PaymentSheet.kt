@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.fragment.app.Fragment
 import com.stripe.android.CreateIntentCallback
 import com.stripe.android.CreateIntentCallbackForServerSideConfirmation
+import com.stripe.android.CreateIntentResult
 import com.stripe.android.ExperimentalPaymentSheetDecouplingApi
 import com.stripe.android.IntentConfirmationInterceptor
 import com.stripe.android.link.account.CookieStore
@@ -350,6 +351,17 @@ class PaymentSheet internal constructor(
              * **Note**: Not all payment methods support this.
              */
             Manual,
+        }
+
+        companion object {
+
+            /**
+             * Pass this as the client secret into `CreateIntentResult.success()` to force
+             * [PaymentSheet] to show success and dismiss.
+             *
+             * **Note**: Only for advanced users, not required for most integrations.
+             */
+            const val FORCE_SUCCESS = CreateIntentResult.FORCE_SUCCESS
         }
     }
 

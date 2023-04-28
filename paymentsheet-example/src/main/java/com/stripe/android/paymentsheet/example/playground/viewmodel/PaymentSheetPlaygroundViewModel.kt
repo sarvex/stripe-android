@@ -275,7 +275,7 @@ class PaymentSheetPlaygroundViewModel(
     ): CreateIntentResult {
         // Note: This is not how you'd do this in a real application. Instead, your app would
         // call your backend and create (and optionally confirm) a payment or setup intent.
-        return CreateIntentResult.Success(clientSecret = clientSecret.value!!)
+        return CreateIntentResult.success(clientSecret = clientSecret.value!!)
     }
 
     @OptIn(ExperimentalPaymentSheetDecouplingApi::class)
@@ -315,7 +315,7 @@ class PaymentSheetPlaygroundViewModel(
                             }
 
                             continuation.resume(
-                                CreateIntentResult.Failure(
+                                CreateIntentResult.failure(
                                     cause = error,
                                     displayMessage = message
                                 )
@@ -328,7 +328,7 @@ class PaymentSheetPlaygroundViewModel(
                             )
 
                             continuation.resume(
-                                CreateIntentResult.Success(
+                                CreateIntentResult.success(
                                     clientSecret = confirmIntentResponse.clientSecret,
                                 )
                             )

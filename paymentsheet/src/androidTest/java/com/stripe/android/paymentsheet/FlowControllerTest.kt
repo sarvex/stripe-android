@@ -357,7 +357,7 @@ internal class FlowControllerTest {
                     flowController.confirm()
                 },
                 createIntentCallback = {
-                    CreateIntentResult.Success(
+                    CreateIntentResult.success(
                         clientSecret = "pi_example_secret_example"
                     )
                 },

@@ -111,13 +111,13 @@ internal class ServerSideConfirmationCustomFlowViewModel(
 
         when (apiResult) {
             is ApiResult.Success -> {
-                CreateIntentResult.Success(apiResult.value.clientSecret)
+                CreateIntentResult.success(apiResult.value.clientSecret)
             }
             is ApiResult.Failure -> {
                 val error = ExampleCreateAndConfirmErrorResponse.deserialize(
                     apiResult.error.response
                 ).error
-                CreateIntentResult.Failure(
+                CreateIntentResult.failure(
                     cause = RuntimeException(error),
                     displayMessage = error,
                 )
