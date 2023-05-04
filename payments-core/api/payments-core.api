@@ -14,6 +14,12 @@ public final class com/stripe/android/BuildConfig {
 	public fun <init> ()V
 }
 
+public final class com/stripe/android/CreateIntentResult$Companion {
+	public final fun failure (Ljava/lang/Exception;Ljava/lang/String;)Lcom/stripe/android/CreateIntentResult;
+	public static synthetic fun failure$default (Lcom/stripe/android/CreateIntentResult$Companion;Ljava/lang/Exception;Ljava/lang/String;ILjava/lang/Object;)Lcom/stripe/android/CreateIntentResult;
+	public final fun success (Ljava/lang/String;)Lcom/stripe/android/CreateIntentResult;
+}
+
 public final class com/stripe/android/CustomerSession {
 	public static final field $stable I
 	public static final field Companion Lcom/stripe/android/CustomerSession$Companion;
