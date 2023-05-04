@@ -89,14 +89,14 @@ internal class ServerSideConfirmationCompleteFlowViewModel(
 
         when (apiResult) {
             is ApiResult.Success -> {
-                CreateIntentResult.success(apiResult.value.clientSecret)
+                CreateIntentResult.Success(apiResult.value.clientSecret)
             }
             is ApiResult.Failure -> {
                 val error = ExampleCreateAndConfirmErrorResponse.deserialize(
                     apiResult.error.response
                 ).error
                 val errorMessage = "Unable to create intent\n${apiResult.error.exception}"
-                CreateIntentResult.failure(
+                CreateIntentResult.Failure(
                     cause = RuntimeException(errorMessage),
                     displayMessage = error,
                 )

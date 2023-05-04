@@ -286,7 +286,7 @@ class PaymentSheetPlaygroundViewModel(
             clientSecret.value!!
         }
 
-        return CreateIntentResult.success(clientSecret)
+        return CreateIntentResult.Success(clientSecret)
     }
 
     @OptIn(ExperimentalPaymentSheetDecouplingApi::class)
@@ -299,7 +299,7 @@ class PaymentSheetPlaygroundViewModel(
         backendUrl: String,
     ): CreateIntentResult {
         return if (initializationType.value == InitializationType.DeferredMultiprocessor) {
-            CreateIntentResult.success(PaymentSheet.IntentConfiguration.FORCE_SUCCESS)
+            CreateIntentResult.Success(PaymentSheet.IntentConfiguration.FORCE_SUCCESS)
         } else {
             createAndConfirmIntentInternal(
                 paymentMethodId = paymentMethodId,
@@ -349,7 +349,7 @@ class PaymentSheetPlaygroundViewModel(
                             }
 
                             continuation.resume(
-                                CreateIntentResult.failure(
+                                CreateIntentResult.Failure(
                                     cause = error,
                                     displayMessage = message
                                 )
@@ -362,7 +362,7 @@ class PaymentSheetPlaygroundViewModel(
                             )
 
                             continuation.resume(
-                                CreateIntentResult.success(
+                                CreateIntentResult.Success(
                                     clientSecret = confirmIntentResponse.clientSecret,
                                 )
                             )

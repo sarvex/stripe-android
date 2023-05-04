@@ -181,7 +181,7 @@ internal class PaymentSheetTest {
             paymentSheet = PaymentSheet(
                 activity = it,
                 createIntentCallback = {
-                    CreateIntentResult.success("pi_example_secret_example")
+                    CreateIntentResult.Success("pi_example_secret_example")
                 }
             ) { result ->
                 assertThat(result).isInstanceOf(PaymentSheetResult.Completed::class.java)

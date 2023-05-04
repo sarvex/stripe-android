@@ -34,37 +34,14 @@ fun interface CreateIntentCallback : AbsCreateIntentCallback {
 @ExperimentalPaymentSheetDecouplingApi
 sealed class CreateIntentResult {
 
-    internal data class Success(val clientSecret: String) : CreateIntentResult()
+    @ExperimentalPaymentSheetDecouplingApi
+    class Success(val clientSecret: String) : CreateIntentResult()
 
-    internal object ConfirmedOutsideStripe : CreateIntentResult()
-
-    internal data class Failure @JvmOverloads constructor(
+    @ExperimentalPaymentSheetDecouplingApi
+    class Failure @JvmOverloads constructor(
         internal val cause: Exception,
         internal val displayMessage: String? = null,
     ) : CreateIntentResult()
-
-    companion object {
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val FORCE_SUCCESS = "FORCE_SUCCESS"
-
-        @JvmStatic
-        fun success(clientSecret: String): CreateIntentResult {
-            return if (clientSecret == FORCE_SUCCESS) {
-                ConfirmedOutsideStripe
-            } else {
-                Success(clientSecret)
-            }
-        }
-
-        @JvmStatic
-        fun failure(
-            cause: Exception,
-            displayMessage: String? = null,
-        ): CreateIntentResult {
-            return Failure(cause, displayMessage)
-        }
-    }
 }
 
 /**

@@ -356,12 +356,12 @@ class PaymentSheet internal constructor(
         companion object {
 
             /**
-             * Pass this as the client secret into `CreateIntentResult.success()` to force
+             * Pass this as the client secret into [CreateIntentResult.Success] to force
              * [PaymentSheet] to show success and dismiss.
              *
              * **Note**: Only for advanced users, not required for most integrations.
              */
-            const val FORCE_SUCCESS = CreateIntentResult.FORCE_SUCCESS
+            const val FORCE_SUCCESS = IntentConfirmationInterceptor.FORCE_SUCCESS
         }
     }
 

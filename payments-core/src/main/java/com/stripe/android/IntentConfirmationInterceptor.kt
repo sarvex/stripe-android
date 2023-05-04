@@ -56,6 +56,8 @@ interface IntentConfirmationInterceptor {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         var createIntentCallback: AbsCreateIntentCallback? = null
+
+        const val FORCE_SUCCESS = "FORCE_SUCCESS"
     }
 }
 
@@ -169,11 +171,12 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
         return when (
             val result = createIntentCallback.onCreateIntent(paymentMethodId = paymentMethod.id!!)
         ) {
-            is CreateIntentResult.ConfirmedOutsideStripe -> {
-                NextStep.Complete(isForceSuccess = true)
-            }
             is CreateIntentResult.Success -> {
-                createConfirmStep(result.clientSecret, shippingValues, paymentMethod)
+                if (result.clientSecret == IntentConfirmationInterceptor.FORCE_SUCCESS) {
+                    NextStep.Complete(isForceSuccess = true)
+                } else {
+                    createConfirmStep(result.clientSecret, shippingValues, paymentMethod)
+                }
             }
             is CreateIntentResult.Failure -> {
                 NextStep.Fail(
@@ -196,27 +199,16 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
         )
 
         return when (result) {
-            is CreateIntentResult.ConfirmedOutsideStripe -> {
-                NextStep.Complete(isForceSuccess = true)
-            }
             is CreateIntentResult.Success -> {
-                retrieveStripeIntent(result.clientSecret).fold(
-                    onSuccess = { intent ->
-                        if (intent.isConfirmed) {
-                            NextStep.Complete(isForceSuccess = false)
-                        } else if (intent.status == StripeIntent.Status.RequiresAction) {
-                            NextStep.HandleNextAction(result.clientSecret)
-                        } else {
-                            createConfirmStep(result.clientSecret, shippingValues, paymentMethod)
-                        }
-                    },
-                    onFailure = { error ->
-                        NextStep.Fail(
-                            cause = error,
-                            message = genericErrorMessage,
-                        )
-                    }
-                )
+                if (result.clientSecret == IntentConfirmationInterceptor.FORCE_SUCCESS) {
+                    NextStep.Complete(isForceSuccess = true)
+                } else {
+                    handleServerSideConfirmationSuccess(
+                        clientSecret = result.clientSecret,
+                        paymentMethod = paymentMethod,
+                        shippingValues = shippingValues,
+                    )
+                }
             }
             is CreateIntentResult.Failure -> {
                 NextStep.Fail(
@@ -225,6 +217,30 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun handleServerSideConfirmationSuccess(
+        clientSecret: String,
+        paymentMethod: PaymentMethod,
+        shippingValues: ConfirmPaymentIntentParams.Shipping?,
+    ): NextStep {
+        return retrieveStripeIntent(clientSecret).fold(
+            onSuccess = { intent ->
+                if (intent.isConfirmed) {
+                    NextStep.Complete(isForceSuccess = false)
+                } else if (intent.status == StripeIntent.Status.RequiresAction) {
+                    NextStep.HandleNextAction(clientSecret)
+                } else {
+                    createConfirmStep(clientSecret, shippingValues, paymentMethod)
+                }
+            },
+            onFailure = { error ->
+                NextStep.Fail(
+                    cause = error,
+                    message = genericErrorMessage,
+                )
+            }
+        )
     }
 
     private suspend fun retrieveStripeIntent(clientSecret: String): Result<StripeIntent> {
