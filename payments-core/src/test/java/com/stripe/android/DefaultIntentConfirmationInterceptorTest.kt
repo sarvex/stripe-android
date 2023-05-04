@@ -374,7 +374,7 @@ class DefaultIntentConfirmationInterceptorTest {
         )
 
         assertThat(nextStep).isEqualTo(
-            IntentConfirmationInterceptor.NextStep.Complete(PaymentIntentFixtures.PI_SUCCEEDED)
+            IntentConfirmationInterceptor.NextStep.Complete(isForceSuccess = false)
         )
     }
 

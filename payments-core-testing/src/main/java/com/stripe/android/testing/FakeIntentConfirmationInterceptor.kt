@@ -16,8 +16,10 @@ class FakeIntentConfirmationInterceptor : IntentConfirmationInterceptor {
         channel.trySend(nextStep)
     }
 
-    fun enqueueCompleteStep() {
-        channel.trySend(IntentConfirmationInterceptor.NextStep.Complete)
+    fun enqueueCompleteStep(
+        isForceSuccess: Boolean = false,
+    ) {
+        channel.trySend(IntentConfirmationInterceptor.NextStep.Complete(isForceSuccess))
     }
 
     fun enqueueNextActionStep(clientSecret: String) {
