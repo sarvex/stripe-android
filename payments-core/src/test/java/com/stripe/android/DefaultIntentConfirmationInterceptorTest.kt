@@ -13,12 +13,16 @@ import com.stripe.android.model.PaymentMethodCreateParamsFixtures
 import com.stripe.android.model.PaymentMethodFixtures
 import com.stripe.android.model.StripeIntent
 import com.stripe.android.networking.AbsFakeStripeRepository
+import com.stripe.android.networking.StripeRepository
 import com.stripe.android.testing.IntentConfirmationInterceptorTestRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import java.util.Objects
 import kotlin.test.assertFailsWith
@@ -461,10 +465,11 @@ class DefaultIntentConfirmationInterceptorTest {
     @Test
     fun `Returns success as next step if merchant is forcing success in client-side callback`() = runTest {
         val paymentMethod = PaymentMethodFixtures.CARD_PAYMENT_METHOD
+        val stripeRepository = mock<StripeRepository>()
 
         val interceptor = DefaultIntentConfirmationInterceptor(
             context = context,
-            stripeRepository = mock(),
+            stripeRepository = stripeRepository,
             publishableKeyProvider = { "pk" },
             stripeAccountIdProvider = { null },
         )
@@ -480,6 +485,8 @@ class DefaultIntentConfirmationInterceptorTest {
             setupForFutureUsage = null,
         )
 
+        verify(stripeRepository, never()).retrieveStripeIntent(any(), any(), any())
+
         assertThat(nextStep).isEqualTo(
             IntentConfirmationInterceptor.NextStep.Complete(isForceSuccess = true)
         )
@@ -488,10 +495,11 @@ class DefaultIntentConfirmationInterceptorTest {
     @Test
     fun `Returns success as next step if merchant is forcing success in server-side callback`() = runTest {
         val paymentMethod = PaymentMethodFixtures.CARD_PAYMENT_METHOD
+        val stripeRepository = mock<StripeRepository>()
 
         val interceptor = DefaultIntentConfirmationInterceptor(
             context = context,
-            stripeRepository = mock(),
+            stripeRepository = stripeRepository,
             publishableKeyProvider = { "pk" },
             stripeAccountIdProvider = { null },
         )
@@ -507,6 +515,8 @@ class DefaultIntentConfirmationInterceptorTest {
             shippingValues = null,
             setupForFutureUsage = null,
         )
+
+        verify(stripeRepository, never()).retrieveStripeIntent(any(), any(), any())
 
         assertThat(nextStep).isEqualTo(
             IntentConfirmationInterceptor.NextStep.Complete(isForceSuccess = true)
