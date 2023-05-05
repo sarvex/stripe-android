@@ -73,6 +73,9 @@ sealed interface StripeIntent : StripeModel {
 
     fun requiresConfirmation(): Boolean
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun getPaymentMethodOptions(): Map<String, Any?>
+
     /**
      * Type of the next action to perform.
      */
