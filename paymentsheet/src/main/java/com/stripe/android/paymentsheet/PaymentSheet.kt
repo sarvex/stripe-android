@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.stripe.android.CreateIntentCallback
 import com.stripe.android.CreateIntentCallbackForServerSideConfirmation
 import com.stripe.android.CreateIntentResult
+import com.stripe.android.DelicatePaymentSheetApi
 import com.stripe.android.ExperimentalPaymentSheetDecouplingApi
 import com.stripe.android.IntentConfirmationInterceptor
 import com.stripe.android.link.account.CookieStore
@@ -361,7 +362,8 @@ class PaymentSheet internal constructor(
              *
              * **Note**: Only for advanced users, not required for most integrations.
              */
-            const val FORCE_SUCCESS = IntentConfirmationInterceptor.FORCE_SUCCESS
+            @DelicatePaymentSheetApi
+            const val DISMISS_WITH_SUCCESS = IntentConfirmationInterceptor.DISMISS_WITH_SUCCESS
         }
     }
 

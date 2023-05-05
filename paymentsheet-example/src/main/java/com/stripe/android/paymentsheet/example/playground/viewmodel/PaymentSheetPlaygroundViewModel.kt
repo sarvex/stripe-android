@@ -10,6 +10,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
 import com.stripe.android.CreateIntentResult
+import com.stripe.android.DelicatePaymentSheetApi
 import com.stripe.android.ExperimentalPaymentSheetDecouplingApi
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.core.model.CountryCode
@@ -267,7 +268,7 @@ class PaymentSheetPlaygroundViewModel(
             }
     }
 
-    @OptIn(ExperimentalPaymentSheetDecouplingApi::class)
+    @OptIn(ExperimentalPaymentSheetDecouplingApi::class, DelicatePaymentSheetApi::class)
     @Suppress("UNUSED_PARAMETER")
     fun createIntent(
         paymentMethodId: String,
@@ -279,7 +280,7 @@ class PaymentSheetPlaygroundViewModel(
         val initializationType = initializationType.value
 
         val clientSecret = if (initializationType == InitializationType.DeferredMultiprocessor) {
-            PaymentSheet.IntentConfiguration.FORCE_SUCCESS
+            PaymentSheet.IntentConfiguration.DISMISS_WITH_SUCCESS
         } else {
             // Note: This is not how you'd do this in a real application. Instead, your app would
             // call your backend and create (and optionally confirm) a payment or setup intent.
@@ -289,7 +290,7 @@ class PaymentSheetPlaygroundViewModel(
         return CreateIntentResult.Success(clientSecret)
     }
 
-    @OptIn(ExperimentalPaymentSheetDecouplingApi::class)
+    @OptIn(ExperimentalPaymentSheetDecouplingApi::class, DelicatePaymentSheetApi::class)
     suspend fun createAndConfirmIntent(
         paymentMethodId: String,
         shouldSavePaymentMethod: Boolean,
@@ -299,7 +300,7 @@ class PaymentSheetPlaygroundViewModel(
         backendUrl: String,
     ): CreateIntentResult {
         return if (initializationType.value == InitializationType.DeferredMultiprocessor) {
-            CreateIntentResult.Success(PaymentSheet.IntentConfiguration.FORCE_SUCCESS)
+            CreateIntentResult.Success(PaymentSheet.IntentConfiguration.DISMISS_WITH_SUCCESS)
         } else {
             createAndConfirmIntentInternal(
                 paymentMethodId = paymentMethodId,
