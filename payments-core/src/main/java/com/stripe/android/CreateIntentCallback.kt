@@ -32,16 +32,16 @@ fun interface CreateIntentCallback : AbsCreateIntentCallback {
  * [CreateIntentCallbackForServerSideConfirmation].
  */
 @ExperimentalPaymentSheetDecouplingApi
-sealed class CreateIntentResult {
+sealed interface CreateIntentResult {
 
     @ExperimentalPaymentSheetDecouplingApi
-    class Success(val clientSecret: String) : CreateIntentResult()
+    class Success(val clientSecret: String) : CreateIntentResult
 
     @ExperimentalPaymentSheetDecouplingApi
     class Failure @JvmOverloads constructor(
         internal val cause: Exception,
         internal val displayMessage: String? = null,
-    ) : CreateIntentResult()
+    ) : CreateIntentResult
 }
 
 /**
