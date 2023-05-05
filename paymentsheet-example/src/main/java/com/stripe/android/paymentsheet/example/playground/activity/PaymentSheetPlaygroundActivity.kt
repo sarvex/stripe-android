@@ -203,7 +203,7 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
 
         paymentSheet = PaymentSheet(
             activity = this,
-            createIntentCallback = { paymentMethodId ->
+            createIntentCallback = { paymentMethodId, _ ->
                 viewModel.createIntent(
                     paymentMethodId = paymentMethodId,
                     merchantCountryCode = merchantCountryCode.value,
@@ -218,7 +218,7 @@ class PaymentSheetPlaygroundActivity : AppCompatActivity() {
         flowController = PaymentSheet.FlowController.create(
             activity = this,
             paymentOptionCallback = ::onPaymentOption,
-            createIntentCallbackForServerSideConfirmation = { paymentMethodId, shouldSavePaymentMethod ->
+            createIntentCallback = { paymentMethodId, shouldSavePaymentMethod ->
                 viewModel.createAndConfirmIntent(
                     paymentMethodId = paymentMethodId,
                     shouldSavePaymentMethod = shouldSavePaymentMethod,

@@ -90,12 +90,11 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
                 setupForFutureUsage = setupForFutureUsage,
             )
         } else {
-            createPaymentMethod(
-                paymentMethodCreateParams.copy(
-                    productUsage = paymentMethodCreateParams.attribution
-                        .plus("deferred-intent")
-                )
-            ).fold(
+            val params = paymentMethodCreateParams.copy(
+                productUsage = paymentMethodCreateParams.attribution + "deferred-intent",
+            )
+
+            createPaymentMethod(params).fold(
                 onSuccess = { paymentMethod ->
                     intercept(
                         clientSecret = null,
@@ -124,19 +123,12 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
             createConfirmStep(clientSecret, shippingValues, paymentMethod)
         } else {
             when (val callback = IntentConfirmationInterceptor.createIntentCallback) {
-                is CreateIntentCallbackForServerSideConfirmation -> {
-                    handleServerSideConfirmation(
-                        createIntentCallback = callback,
-                        shouldSavePaymentMethod = setupForFutureUsage == OffSession,
-                        paymentMethod = paymentMethod,
-                        shippingValues = shippingValues
-                    )
-                }
                 is CreateIntentCallback -> {
-                    handleClientSideConfirmation(
+                    handleIntentCreationFromPaymentMethod(
                         createIntentCallback = callback,
                         paymentMethod = paymentMethod,
-                        shippingValues = shippingValues
+                        shouldSavePaymentMethod = setupForFutureUsage == OffSession,
+                        shippingValues = shippingValues,
                     )
                 }
                 else -> {
@@ -160,35 +152,15 @@ class DefaultIntentConfirmationInterceptor @Inject constructor(
         }
     }
 
-    private suspend fun handleClientSideConfirmation(
+    private suspend fun handleIntentCreationFromPaymentMethod(
         createIntentCallback: CreateIntentCallback,
-        paymentMethod: PaymentMethod,
-        shippingValues: ConfirmPaymentIntentParams.Shipping?
-    ): IntentConfirmationInterceptor.NextStep {
-        return when (
-            val result = createIntentCallback.onCreateIntent(paymentMethodId = paymentMethod.id!!)
-        ) {
-            is CreateIntentResult.Success -> {
-                createConfirmStep(result.clientSecret, shippingValues, paymentMethod)
-            }
-            is CreateIntentResult.Failure -> {
-                IntentConfirmationInterceptor.NextStep.Fail(
-                    cause = result.cause,
-                    message = result.displayMessage ?: genericErrorMessage,
-                )
-            }
-        }
-    }
-
-    private suspend fun handleServerSideConfirmation(
-        createIntentCallback: CreateIntentCallbackForServerSideConfirmation,
         paymentMethod: PaymentMethod,
         shouldSavePaymentMethod: Boolean,
         shippingValues: ConfirmPaymentIntentParams.Shipping?,
     ): IntentConfirmationInterceptor.NextStep {
         val result = createIntentCallback.onCreateIntent(
             paymentMethodId = paymentMethod.id!!,
-            shouldSavePaymentMethod = shouldSavePaymentMethod
+            shouldSavePaymentMethod = shouldSavePaymentMethod,
         )
 
         return when (result) {
