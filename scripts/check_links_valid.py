@@ -12,13 +12,11 @@ readme="README.md"
 
 def request(url):
     try:
-        print("requesting... ---" + url + "--- ")
-        response = urllib.request.urlopen(url)
-        if(response):
+        print(f"requesting... ---{url}--- ")
+        if response := urllib.request.urlopen(url):
             return response.getcode() == 200
-        else:
-            print("No response\n")
-            return False
+        print("No response\n")
+        return False
     except HTTPError as e:
         print("HTTPError \n")
         return False
@@ -29,11 +27,10 @@ def request(url):
     return False
 
 def findStripeLinksInFile(filename):
-    regexStripe = r'(https://stripe.com[^\\)|"|\\ |<]*)'
-    regexGithub = r'(https://github.com[^\\)|"|\\ |<]*)'
     allUrls = []
-    isFile = os.path.isfile(filename)
-    if(isFile):
+    if isFile := os.path.isfile(filename):
+        regexStripe = r'(https://stripe.com[^\\)|"|\\ |<]*)'
+        regexGithub = r'(https://github.com[^\\)|"|\\ |<]*)'
         with open(filename) as file:
             for line in file:
                 allUrls.extend(re.findall(regexStripe, line))
@@ -43,9 +40,8 @@ def findStripeLinksInFile(filename):
 
 def findStripeLinks(root_dir):
     urlSet=set()
-    for filename in glob.iglob(root_dir + '**/**', recursive=True):
-        urls = findStripeLinksInFile(filename)
-        if(urls):
+    for filename in glob.iglob(f'{root_dir}**/**', recursive=True):
+        if urls := findStripeLinksInFile(filename):
             for url in urls:
                 urlSet.add(url)
 
@@ -58,10 +54,6 @@ urlSet = findStripeLinks(root_dir)
 for urlLinkFromReadme in findStripeLinksInFile("README.md"):
   urlSet.add(urlLinkFromReadme)
 
-# For each link verify it does not 404 when requested.
-urlDNE = []
-for url in urlSet:
-    if(not request(url)):
-        urlDNE.append(url)
+urlDNE = [url for url in urlSet if (not request(url))]
 print(urlDNE)
 sys.exit(1)

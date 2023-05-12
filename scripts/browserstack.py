@@ -17,13 +17,13 @@ def listApps():
     print("LISTING apps...", end='')
     url = "https://api-cloud.browserstack.com/app-automate/espresso/v2/apps"
     response = requests.get(url,auth=(user, authKey))
-    if(response.status_code == 200):
+    if (response.status_code == 200):
         # print result
         print("DONE")
         print("Result:")
         print("| Uploaded at |    App id     | Expire at |")
         print("| ----------- | ------------- | --------- |")
-        if(0 < len(response.json()["apps"])):
+        if len(response.json()["apps"]) > 0:
             for fileDescription in response.json()["apps"]:
                 print("| {uploadDate} | {id} | {expireDate} |".format(
                       uploadDate=fileDescription["uploaded_at"],
@@ -43,13 +43,13 @@ def listEspressoApps():
     print("LISTING test apps...", end='')
     url = "https://api-cloud.browserstack.com/app-automate/espresso/v2/test-suites"
     response = requests.get(url,auth=(user, authKey))
-    if(response.status_code == 200):
+    if (response.status_code == 200):
         # print result
         print("DONE")
         print("Result:")
         print("| Uploaded at | Test Suite id | Expire at |")
         print("| ----------- | ------------- | --------- |")
-        if(0 < len(response.json()["test_suites"])):
+        if len(response.json()["test_suites"]) > 0:
             for fileDescription in response.json()["test_suites"]:
                 print("| {uploadDate} | {id} | {expireDate} |".format(
                       uploadDate=fileDescription["uploaded_at"],
@@ -63,15 +63,15 @@ def listEspressoApps():
 
 # https://www.browserstack.com/docs/app-automate/api-reference/espresso/tests#delete-a-test-suite
 def deleteTestSuite(testSuiteID):
-     # print step description
-     print("DELETING test app: {id} ...".format(id = testSuiteID), end='')
-     url = "https://api-cloud.browserstack.com/app-automate/espresso/v2/test-suites/" + testSuiteID
-     response = requests.delete(url,auth=(user, authKey))
-     if(response.status_code == 200):
-         # print result
-         print("DONE\nResult: \n" + str(response.json()))
-     else:
-        print("DONE\nRESULT: " + str(response.status_code) + "\n" + str(response.json()))
+    # print step description
+    print("DELETING test app: {id} ...".format(id = testSuiteID), end='')
+    url = f"https://api-cloud.browserstack.com/app-automate/espresso/v2/test-suites/{testSuiteID}"
+    response = requests.delete(url,auth=(user, authKey))
+    if(response.status_code == 200):
+        # print result
+        print("DONE\nResult: \n" + str(response.json()))
+    else:
+       print("DONE\nRESULT: " + str(response.status_code) + "\n" + str(response.json()))
 
 # https://www.browserstack.com/docs/app-automate/api-reference/espresso/apps#upload-an-app
 def uploadApk(apkFile):
@@ -181,36 +181,32 @@ def executeTests(appUrl, testUrl):
       }, auth=(user, authKey))
     jsonResponse = response.json()
 
-    if(response.status_code == 200):
+    if (response.status_code == 200):
         # print result
         print("DONE\nRESULT build Started: " + jsonResponse["message"])
-        if(jsonResponse["message"] == "Success"):
-            print("RESULT build id: " + jsonResponse["build_id"])
-            print("RESULT see build here: " +
-                 "https://app-automate.browserstack.com/dashboard/v2/builds/{buildId}".format(buildId=jsonResponse["build_id"]))
-            return jsonResponse["build_id"]
-        else:
+        if jsonResponse["message"] != "Success":
             return None
+        print("RESULT build id: " + jsonResponse["build_id"])
+        print("RESULT see build here: " +
+             "https://app-automate.browserstack.com/dashboard/v2/builds/{buildId}".format(buildId=jsonResponse["build_id"]))
+        return jsonResponse["build_id"]
     else:
         print("DONE\nRESULT: " + str(response.status_code) + "\n" + str(response.json()))
         return None
 
 # https://www.browserstack.com/docs/app-automate/api-reference/espresso/builds#get-build-status
 def waitForBuildComplete(buildId):
-       print("WAITING for build id: {buildId}...".format(buildId=buildId), end='')
-       url="https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/" + buildId
-       responseStatus="running"
+    print("WAITING for build id: {buildId}...".format(buildId=buildId), end='')
+    url = f"https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{buildId}"
+    responseStatus="running"
 
-       while(responseStatus == "running"):
-           time.sleep(10)
-           print(".", end='')
-           response = requests.get(url, auth=(user, authKey))
-           responseStatus = response.json()["status"]
-       print("DONE.\nRESULT is: " + responseStatus)
-       if(responseStatus == "passed"):
-          return 0
-       else:
-          return 1
+    while(responseStatus == "running"):
+        time.sleep(10)
+        print(".", end='')
+        response = requests.get(url, auth=(user, authKey))
+        responseStatus = response.json()["status"]
+    print("DONE.\nRESULT is: " + responseStatus)
+    return 0 if (responseStatus == "passed") else 1
 
 
 def confirm(message):
@@ -221,7 +217,7 @@ def confirm(message):
     """
     answer = ""
     while answer not in ["y", "n"]:
-        answer = input(message + " [Y/N]? ").lower()
+        answer = input(f"{message} [Y/N]? ").lower()
     return answer == "y"
 
 if __name__ == "__main__":
@@ -241,7 +237,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print("\n")
 
-    if((not user or user == "") or (not authKey or authKey == "")):
+    if ((not user or user == "") or (not authKey or authKey == "")):
         print("You must set the environment variables: ")
         print("   export BROWSERSTACK_USERNAME=<user>")
         print("   export BROWSERSTACK_ACCESS_KEY=<authkey>")
@@ -252,38 +248,44 @@ if __name__ == "__main__":
        listEspressoApps()
        sys.exit(0)
 
-    elif(args.delete != None):
-       if(args.force or (confirm("Are you sure you want to delete the test suite: " + args.delete) == True)):
-          deleteTestSuite(args.delete)
-       sys.exit(0)
-
-    elif(args.upload != None):
-        appUrl = uploadAppLiveApk(args.upload)
-        print("Uploaded app live apk url: " + appUrl)
+    elif (args.delete != None):
+        if (
+            args.force
+            or confirm(
+                f"Are you sure you want to delete the test suite: {args.delete}"
+            )
+            == True
+        ):
+            deleteTestSuite(args.delete)
         sys.exit(0)
 
-    elif(args.test):
-       if(args.espresso == None or args.apk == None):# or args.name == None):
-           parser.print_help()
-           sys.exit(2)
-       else:
-           print("Running the test with:\nApp under test: {apk}\nEspresso test suite: {testSuite}"
-              .format(
-                 apk=args.apk,
-                 testSuite=args.espresso
-              )
-           )
-           print("-----------------")
-           appUrl = uploadApk(args.apk)
-           print("-----------------")
-           testUrl = uploadEspressoApk(args.espresso)
-           print("-----------------")
-           buildId = executeTests(appUrl, testUrl)
-           exitStatus = 1
-           if(buildId != None):
-               exitStatus = waitForBuildComplete(buildId)
-           else:
-               deleteTestSuite(testUrl.replace("bs://", ""))
-           sys.exit(exitStatus)
+    elif (args.upload != None):
+        appUrl = uploadAppLiveApk(args.upload)
+        print(f"Uploaded app live apk url: {appUrl}")
+        sys.exit(0)
+
+    elif args.test:
+        if args.espresso is None or args.apk is None:# or args.name == None):
+            parser.print_help()
+            sys.exit(2)
+        else:
+            print("Running the test with:\nApp under test: {apk}\nEspresso test suite: {testSuite}"
+               .format(
+                  apk=args.apk,
+                  testSuite=args.espresso
+               )
+            )
+            print("-----------------")
+            appUrl = uploadApk(args.apk)
+            print("-----------------")
+            testUrl = uploadEspressoApk(args.espresso)
+            print("-----------------")
+            buildId = executeTests(appUrl, testUrl)
+            exitStatus = 1
+            if buildId is None:
+                deleteTestSuite(testUrl.replace("bs://", ""))
+            else:
+                exitStatus = waitForBuildComplete(buildId)
+            sys.exit(exitStatus)
     else:
-       parser.print_help()
+        parser.print_help()
